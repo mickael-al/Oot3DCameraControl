@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>91</ID>
+      <Description>"PlayerPositionFinder"</Description>
+      <Color>030093</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscan(BASE,2A 00 00 60 6A 8F 09 00 00 00 00 00 00 02 FF 75 00)
+label(_base)
+registersymbol(_base)
+
+BASE:
+_base:
+
+
+[DISABLE]
+unregistersymbol(_base)
+
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>93</ID>
+          <Description>"X"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>FD5151</Color>
+          <VariableType>Float</VariableType>
+          <Address>_base+33</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>92</ID>
+          <Description>"Y"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>1F1AFF</Color>
+          <VariableType>Float</VariableType>
+          <Address>_base+33+4</Address>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Increase Value</Action>
+              <Keys>
+                <Key>104</Key>
+              </Keys>
+              <Value>500</Value>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>94</ID>
+          <Description>"Z"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>6AFC5F</Color>
+          <VariableType>Float</VariableType>
+          <Address>_base+33+8</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>170</ID>
+          <Description>"LinkSneek"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>2 Bytes</VariableType>
+          <Address>_base+250B</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>438</ID>
+          <Description>"Cheval"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>1B719E</Color>
+          <VariableType>2 Bytes</VariableType>
+          <Address>_base+131</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>95</ID>
+      <Description>"CameraPositionFinder"</Description>
+      <Color>C600C6</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscan(BASECAM,80 3F 00 00 80 3F 00 00 80 3F 00 00 00 00 07)
+label(_basecam)
+registersymbol(_basecam)
+
+BASECAM:
+_basecam:
+
+
+[DISABLE]
+unregistersymbol(_basecam)
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>96</ID>
+          <Description>"CX"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>FF717E</Color>
+          <VariableType>Float</VariableType>
+          <Address>_basecam+B6</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>97</ID>
+          <Description>"CY"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>3A35FF</Color>
+          <VariableType>Float</VariableType>
+          <Address>_basecam+B6+4</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>98</ID>
+          <Description>"CZ"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>28FF79</Color>
+          <VariableType>Float</VariableType>
+          <Address>_basecam+B6+8</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>161</ID>
+          <Description>"LookLink"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <Color>7B8B9B</Color>
+          <VariableType>2 Bytes</VariableType>
+          <Address>_basecam+60</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
