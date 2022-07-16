@@ -134,7 +134,6 @@
     <ClCompile Include="Time.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InputManager.h" />
     <ClInclude Include="proc.h" />
     <ClInclude Include="Time.h" />
   </ItemGroup>

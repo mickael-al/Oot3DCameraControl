@@ -6,14 +6,14 @@
 #include <Tlhelp32.h>
 
 
-template<typename T> T RPM(HANDLE hProc,SIZE_T address) {
-    T buffer;
-    ReadProcessMemory(hProc, (LPCVOID)address, &buffer, sizeof(T), NULL);
-    return buffer;
+template<typename T> T RPM(HANDLE hProc, SIZE_T address) {
+	T buffer;
+	ReadProcessMemory(hProc, (LPCVOID)address, &buffer, sizeof(T), NULL);
+	return buffer;
 }
 
-template<typename T> void WPM(HANDLE hProc,SIZE_T address, T buffer) {
-    WriteProcessMemory(hProc, (LPVOID)address, &buffer, sizeof(buffer), NULL);
+template<typename T> void WPM(HANDLE hProc, SIZE_T address, T buffer) {
+	WriteProcessMemory(hProc, (LPVOID)address, &buffer, sizeof(buffer), NULL);
 }
 
 DWORD GetProcId(const wchar_t* procName);

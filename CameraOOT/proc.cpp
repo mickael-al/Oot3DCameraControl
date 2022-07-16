@@ -86,23 +86,23 @@ uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, std::vector<unsigned int> off
 	return addr;
 }
 
-uintptr_t find_pattern(HANDLE hProc, uint8_t * patern,int size)
+uintptr_t find_pattern(HANDLE hProc, uint8_t* patern, int size)
 {
 	const size_t SIZE = 4096;
 	uint8_t* bufRead = new uint8_t[SIZE];
 	uintptr_t addr = 0x0;
 	SIZE_T NumberOfBytesRead = SIZE;
-	int i = 0,j = 0;
+	int i = 0, j = 0;
 	while (true)
-	{		
+	{
 		ReadProcessMemory(hProc, (BYTE*)addr, &bufRead[0], SIZE, &NumberOfBytesRead);
 		for (j = 0; j < NumberOfBytesRead; j++)
 		{
-			for (i = 0; i < size && patern[i] == bufRead[j+i]; i++)
+			for (i = 0; i < size && patern[i] == bufRead[j + i]; i++)
 			{
 				if (i == size - 1)
 				{
-					return addr+j;
+					return addr + j;
 				}
 			}
 		}

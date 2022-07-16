@@ -29,9 +29,6 @@
     <ClInclude Include="proc.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="InputManager.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>

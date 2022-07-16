@@ -1,11 +1,8 @@
 #include "Time.h"
 
 
-	Time* Time::s_pInstance = nullptr;
-
 	Time::Time()
 	{
-		Time::s_pInstance = this;
 		m_time = 0.0f;
 	}
 
@@ -31,11 +28,6 @@
 		m_deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(m_currentTime - m_lastTime).count();
 	}
 
-	void Time::release()
-	{
-		Time::s_pInstance = nullptr;
-	}
-
 	float Time::getDeltaTime()
 	{
 		return m_deltaTime;
@@ -51,19 +43,8 @@
 		return m_time;
 	}
 
-	float Time::GetFixedDeltaTime()
-	{
-		return Time::s_pInstance->m_fixedDeltaTime;
-	}
 
-	float Time::GetDeltaTime()
-	{
-		return Time::s_pInstance->m_deltaTime;
-	}
 
-	float Time::GetTime()
-	{
-		return Time::s_pInstance->m_time;
-	}
+
 
 
