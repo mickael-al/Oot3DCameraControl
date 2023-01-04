@@ -2,11 +2,10 @@
 #include <iostream>
 #include "proc.h"
 #include <Windows.h>
-#include <Xinput.h>
+#include <SDL.h>
 #include "Time.h"
 
 #pragma comment(user, "Compiled on " __DATE__ " at " __TIME__)
-#pragma comment(lib, "XInput.lib")
 
 #define PI 3.14159265359f
 #define DeadZoneStick 0.40f //max 1.0f
@@ -19,7 +18,7 @@ void clearConsole() {
 	std::cout << "\x1B[2J\x1B[H";
 }
 
-int main()
+int main(int, char**)
 {
 	SetConsoleTitle(L"Oot Camera");
 	DWORD procId = GetProcId(L"Zelda Ocarina of Time 4K.exe");
@@ -66,29 +65,10 @@ int main()
 	float y = 0.0f;
 	float z = 0.0f;
 
-	int controllerId = -1;
-	XINPUT_STATE state;
+	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_GameController* controller = nullptr;
+	SDL_Event event;
 
-	for (DWORD i = 0; i < XUSER_MAX_COUNT && controllerId == -1; i++)
-	{
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-
-		if (XInputGetState(i, &state) == ERROR_SUCCESS)
-		{
-			std::cout << "[+] Controller " << i << " is connected" << std::endl;
-			controllerId = i;
-		}
-		else
-		{
-			std::cout << "[X] Controller " << i << " is not connected" << std::endl;
-		}
-	}
-	if (controllerId == -1)
-	{
-		std::cout << "Controller Not Found" << std::endl;
-		system("pause");
-		return 0;
-	}
 	Time time;
 	float joystickX = 0.0f;
 	float joystickY = 0.0f;
@@ -108,8 +88,25 @@ int main()
 	while (true)
 	{
 		time.fixedUpdateTime();
-		XInputGetState(controllerId, &state);
-		if (state.Gamepad.wButtons == XINPUT_GAMEPAD_DPAD_DOWN)
+		while (SDL_PollEvent(&event))
+		{
+			if (event.type == SDL_CONTROLLERDEVICEADDED)
+			{
+				controller = SDL_GameControllerOpen(event.cdevice.which);
+				if (controller)
+				{
+					std::cout << "[+] Controller " << event.cdevice.which << " is connected" << std::endl;
+				}
+			}
+			else if (event.type == SDL_CONTROLLERDEVICEREMOVED)
+			{
+					SDL_GameControllerClose(controller);
+					std::cout << "[X] Controller " << event.cdevice.which << " is not connected" << std::endl;
+			}
+		}
+
+		SDL_GameControllerUpdate();
+		if(SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) == 1)
 		{
 			pausePressed = true;
 		}
@@ -140,7 +137,7 @@ int main()
 			ReadProcessMemory(hProcess, (void*)(LocalPlayer), &x, sizeof(float), 0);
 			ReadProcessMemory(hProcess, (void*)(LocalPlayer + 0x04), &y, sizeof(float), 0);
 			ReadProcessMemory(hProcess, (void*)(LocalPlayer + 0x08), &z, sizeof(float), 0);
-			if (state.Gamepad.wButtons == XINPUT_GAMEPAD_LEFT_SHOULDER)
+			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER) == 1)
 			{
 				resetangle = true;
 			}
@@ -163,12 +160,12 @@ int main()
 					baseAngle -= 360.0f;
 				}
 			}
-			joystickX = (float)state.Gamepad.sThumbRX / 32767.0f;
+			joystickX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) / 32767.0f;
 			if (joystickX < DeadZoneStick && joystickX > -DeadZoneStick)
 			{
 				joystickX = 0.0f;
 			}
-			joystickY = (float)state.Gamepad.sThumbRY / 32767.0f;
+			joystickY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0f;
 			if (joystickY < DeadZoneStick && joystickY > -DeadZoneStick)
 			{
 				joystickY = 0.0f;
