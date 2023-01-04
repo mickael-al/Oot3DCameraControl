@@ -1,3 +1,4 @@
+#include <intrin.h>
 #include "proc.h"
 
 DWORD GetProcId(const wchar_t* procName)
@@ -86,27 +87,102 @@ uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, std::vector<unsigned int> off
 	return addr;
 }
 
-uintptr_t find_pattern(HANDLE hProc, uint8_t* patern, int size)
+struct PartData
 {
-	const size_t SIZE = 4096;
-	uint8_t* bufRead = new uint8_t[SIZE];
-	uintptr_t addr = 0x0;
-	SIZE_T NumberOfBytesRead = SIZE;
-	int i = 0, j = 0;
-	while (true)
+	int32_t mask = 0;
+	__m128i needle;
+
+	PartData()
 	{
-		ReadProcessMemory(hProc, (BYTE*)addr, &bufRead[0], SIZE, &NumberOfBytesRead);
-		for (j = 0; j < NumberOfBytesRead; j++)
-		{
-			for (i = 0; i < size && patern[i] == bufRead[j + i]; i++)
-			{
-				if (i == size - 1)
-				{
-					return addr + j;
-				}
-			}
-		}
-		addr += SIZE;
+		memset(&needle, 0, sizeof(needle));
 	}
-	return 0x0;
+};
+
+// Credits to @DarthTon for this function (source: https://github.com/learn-more/findpattern-bench/blob/master/patterns/DarthTon.h)
+const void* Search(const uint8_t* data, const uint32_t size, const uint8_t* pattern, const char* mask)
+{
+	const uint8_t* result = nullptr;
+	auto len = strlen(mask);
+	auto first = strchr(mask, '?');
+	size_t len2 = (first != nullptr) ? (first - mask) : len;
+	auto firstlen = min(len2, 16);
+	intptr_t num_parts = (len < 16 || len % 16) ? (len / 16 + 1) : (len / 16);
+	PartData parts[4];
+
+	for (intptr_t i = 0; i < num_parts; ++i, len -= 16)
+	{
+		for (size_t j = 0; j < min(len, 16) - 1; ++j)
+			if (mask[16 * i + j] == 'x')
+				_bittestandset((LONG*)&parts[i].mask, j);
+
+		parts[i].needle = _mm_loadu_si128((const __m128i*)(pattern + i * 16));
+	}
+
+	bool abort = false;
+
+#pragma omp parallel for
+	for (intptr_t i = 0; i < static_cast<intptr_t>(size) / 32 - 1; ++i)
+	{
+#pragma omp flush (abort)
+		if (!abort)
+		{
+			auto block = _mm256_loadu_si256((const __m256i*)data + i);
+			if (_mm256_testz_si256(block, block))
+				continue;
+
+			auto offset = _mm_cmpestri(parts->needle, firstlen, _mm_loadu_si128((const __m128i*)(data + i * 32)), 16, _SIDD_CMP_EQUAL_ORDERED);
+			if (offset == 16)
+			{
+				offset += _mm_cmpestri(parts->needle, firstlen, _mm_loadu_si128((const __m128i*)(data + i * 32 + 16)), 16, _SIDD_CMP_EQUAL_ORDERED);
+				if (offset == 32)
+					continue;
+			}
+
+			for (intptr_t j = 0; j < num_parts; ++j)
+			{
+				auto hay = _mm_loadu_si128((const __m128i*)(data + (2 * i + j) * 16 + offset));
+				auto bitmask = _mm_movemask_epi8(_mm_cmpeq_epi8(hay, parts[j].needle));
+				if ((bitmask & parts[j].mask) != parts[j].mask)
+					goto next;
+			}
+
+			result = data + 32 * i + offset;
+			abort = true;
+#pragma omp flush (abort)
+		}
+
+	next:;
+	}
+
+	return result;
+}
+
+uintptr_t SearchInProcessMemory(HANDLE hProcess, const uint8_t* pattern, const char* mask)
+{
+	const int BUFFER_SIZE = 1024 * 1024;
+	uint8_t* buffer = new uint8_t[BUFFER_SIZE];
+	uintptr_t result = 0x0;
+	uint8_t* readAddr = nullptr;
+
+	while (result == 0)
+	{
+		SIZE_T bytesRead = 0;
+		BOOL success = ReadProcessMemory(hProcess, readAddr, buffer, BUFFER_SIZE, &bytesRead);
+		if (!success || bytesRead == 0) {
+			readAddr += BUFFER_SIZE;
+			continue;
+		}
+
+		const void* ptr = Search(buffer, bytesRead, pattern, mask);
+		if (ptr != nullptr)
+		{
+			result = (uintptr_t)readAddr + ((uintptr_t)ptr - (uintptr_t)buffer);
+			break;
+		}
+
+		readAddr += BUFFER_SIZE;
+	}
+	delete[] buffer;
+
+	return result;
 }
