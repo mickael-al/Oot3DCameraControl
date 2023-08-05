@@ -24,6 +24,6 @@ MODULEENTRY32 GetModuleEntry(DWORD procId, const wchar_t* modName);
 
 uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, std::vector<unsigned int> offsets);
 
-uintptr_t find_pattern(HANDLE hProc, uint8_t* patern, int size);
+uintptr_t SearchInProcessMemory(HANDLE hProcess, const uint8_t* pattern, const char* mask);
 
 #endif
